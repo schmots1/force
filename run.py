@@ -162,6 +162,10 @@ def dbcreate():
 			os.rename(csv_file, csv_file.replace(' ', '_'))
 			csv_file = csv_file.replace (" ", "_")
 			sheet = sheet.replace (" ", "_")
+                        #with open(csv_file, 'r') as fin:
+			#	data = fin.read().splitlines(True)
+			#with open(csv_file, 'w') as fout:
+			#	fout.writelines(data[1:])
 			df = pd.read_csv(csv_file)
 			df.columns = pd.Series(df.columns).str.replace(' ','_')
 			df.to_sql(sheet, conn, if_exists='append', index=False)
@@ -412,6 +416,71 @@ def precheck():
    
 	rows = cur.fetchall()
 	return render_template("precheck.html",rows = rows, database = database)
+
+@app.route('/diff')
+def diff():
+	database = request.args.get("database")
+	db1 = "./databases/%s.db" % (database)
+	databases = glob.glob("./databases/*db")
+	return render_template('diff.html', database = database, databases = databases, db1 = db1)
+
+@app.route('/compare')
+def compare():
+	db1 = request.args.get("db1")
+	db2 = request.args.get("db2")
+	db1name = "./databases/%s.db" % db1
+	db2name = "./databases/%s.db" % db2
+	
+	con = sql.connect(db1name)
+        con.row_factory = sql.Row
+        cur = con.cursor()
+	attach = "Attach database '%s' as db2" % db2name
+        cur.execute(attach)
+	cur.execute("Select count(*) from db2.Volumes where name not in (select name from Volumes where name = db2.Volumes.name)")
+	results = cur.fetchone()
+	db2vol_count = results[0]
+	cur.execute("Select count(*) from Volumes where name not in (select name from db2.Volumes where db2.Volumes.name = name)")
+	results = cur.fetchone()
+	db1vol_count = results[0]
+	cur.execute("Select count(*) from db2.Luns where serial_number not in (select serial_number from Luns where serial_number = db2.Luns.serial_number)")
+	results = cur.fetchone()
+	db2lun_count = results[0]
+	cur.execute("Select count(*) from Luns where serial_number not in (select serial_number from db2.Luns where db2.Luns.serial_number = serial_number)")
+	results = cur.fetchone()
+	db1lun_count = results[0]
+	cur.execute("Select count(*) from db2.Qtrees where Id not in (select Id from Qtrees where Id = db2.Qtrees.Id)")
+	results = cur.fetchone()
+	db2qtree_count = results[0]
+	cur.execute("Select count(*) from Qtrees where Id not in (select Id from db2.Qtrees where db2.Qtrees.Id = Id)")
+	results = cur.fetchone()
+	db1qtree_count = results[0]
+	return render_template('compare.html',\
+				db1 = db1, \
+				db2 = db2, \
+				db2vol_count = db2vol_count, \
+				db1vol_count = db1vol_count, \
+				db2lun_count = db2lun_count, \
+				db1lun_count = db1lun_count, \
+				db2qtree_count = db2qtree_count, \
+				db1qtree_count = db1qtree_count)
+
+@app.route('/volcompare')
+def volcompare():
+	db1 = request.args.get("db1")
+	db2 = request.args.get("db2")
+	db1name = "./databases/%s.db" % db1
+	db2name = "./databases/%s.db" % db2
+	
+	con = sql.connect(db1name)
+        con.row_factory = sql.Row
+        cur = con.cursor()
+	attach = "Attach database '%s' as db2" % db2name
+	cur.execute(attach)
+	cur.execute("Select * from db2.Volumes where name not in (select name from Volumes where name = db2.Volumes.name)")
+        rows2 = cur.fetchall()
+	cur.execute("Select * from Volumes where name not in (select name from db2.Volumes where db2.Volumes.name = name)")
+	rows1 = cur.fetchall()
+	return render_template('volcompare.html',rows1 = rows1, rows2 = rows2, db1 = db1, db2 = db2)
 
 if __name__ == '__main__':
    app.run(debug = True)
