@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+   <body>
+ <a href = "{{ url_for('dashboard', database = db1) }}">Go back to dashboard</a>   
+<p>
+<table border=1>
+<tr>
+<td colspan=2>
+	<table border=1>
+		<tr bgcolor=blue>
+			<td width=400px colspan=2>
+				Volumes in first database not in second
+			</td>
+			<td width=400px colspan=2>
+				Volumes in second database not in first
+		</tr>
+		<tr bgcolor=grey>
+			<td>
+				Filer
+			</td>
+			<td>
+				Volume
+			</td>
+			<td>
+				Filer
+			</td>
+			<td>
+				Volume
+			</td>
+		</tr>
+	</table>
+</td>
+<tr align=top>
+<td width=400px valign=top>
+	<table border=1>
+		{% for row in rows1 %}
+		<tr>	
+			<td width=200px>
+				{{ row["storage_controller"] }}
+			</td>
+			<td width=200px>
+				{{ row["name"] }}
+			</td>
+		</tr>
+         	{% endfor %}
+	</table>
+</td>
+<td width=400px>
+	<table border=1>
+		{% for row2 in rows2 %}
+		<tr>	
+			<td width=200px>
+				{{ row2["storage_controller"] }}
+			</td>
+			<td width=200px>
+				{{ row2["name"] }}
+			</td>
+		</tr>
+         	{% endfor %}
+	</table>
+</td>
+</tr>
+</table>
+     <br /> 
+      <a href = "/">Go back to home page</a>
+  </body>
+</html>

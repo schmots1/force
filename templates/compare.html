@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+   <body>
+ <a href = "{{ url_for('dashboard', database = db1) }}">Go back to dashboard</a>   
+<p>
+*Numbers given are the deltas in each database NOT the individual database totals
+ <table border=5>
+	<tr bgcolor=grey>
+		<td>
+		</td>
+		<td>
+			{{ db1 }}
+		</td>
+		<td>
+			{{ db2 }}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<a href="{{ url_for('volcompare', db1=db1, db2=db2) }}">Volumes</a>
+		</td>
+		<td>
+			{{ db1vol_count }}
+		</td>
+		<td>
+			{{ db2vol_count }}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Luns	
+		</td>
+		<td>
+			{{ db1lun_count }}
+		</td>
+		<td>
+			{{ db2lun_count }}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Qtrees	
+		</td>
+		<td>
+			{{ db1qtree_count }}
+		</td>
+		<td>
+			{{ db2qtree_count }}
+		</td>
+	</tr>
+</table>
+	
+      <a href = "/">Go back to home page</a>
+  </body>
+</html>
